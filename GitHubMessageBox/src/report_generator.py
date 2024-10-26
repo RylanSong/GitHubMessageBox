@@ -2,7 +2,14 @@
 #ReportGenerator 类的主要功能是将获取到的更新信息生成一个格式化的报告字符串。
 class ReportGenerator:
     def generate(self, updates):
-        report = ""
+        report = "Latest Release Information:\n\n"
+        for repo, release in updates.items():
+            report += f"Repository: {repo}\n"
+            report += f"Latest Version: {release['tag_name']}\n"
+            report += f"Release Name: {release['name']}\n"
+            report += f"Published at: {release['published_at']}\n"
+            report += f"Release Notes:\n{release['body']}\n"
+            report += "-" * 40 + "\n"
 #使用字符串变量来构建 report 是因为最终目标是生成一段格式化的文本报告，而不是存储结构化数据。字符串更适合这种逐步构建和格式化文本的场景。
         for repo, events in updates.items():
             report += f"Repository: {repo}\n"
