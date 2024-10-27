@@ -1,6 +1,6 @@
 import time
-import threading
-#time 模块用于控制程序的休眠和计时。
+import threading # pylint: disable=unused-import
+#time模块用于控制程序的休眠和计时。
 #threading 模块可用于创建和管理多线程（尽管在这段代码中没有使用多线程功能）。
 
 class Scheduler:

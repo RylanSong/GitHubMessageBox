@@ -1,3 +1,5 @@
 [
-  "langchain-ai/langchain"
+    "langchain-ai/langchain",
+    "GitHubMessageBox",
+    "openai"
 ]
