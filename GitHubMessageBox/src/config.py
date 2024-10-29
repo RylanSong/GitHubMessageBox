@@ -15,6 +15,8 @@ class Config:
             self.notification_settings = config.get('notification_settings')
             self.subscriptions_file = config.get('subscriptions_file')
             self.update_interval = config.get('update_interval', 24 * 60 * 60)  # Default to 24 hours
+            
+
     #json.load(f) 会将 JSON 格式的配置文件内容读取并转换为 Python 字典。
     #self.update_interval = config.get('update_interval', 24 * 60 * 60)：获取 update_interval 配置项，如果配置文件中没有设置，则使用默认值（24小时，以秒为单位，即 24 * 60 * 60）。
             

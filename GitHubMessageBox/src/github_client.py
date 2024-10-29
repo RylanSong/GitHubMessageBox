@@ -1,32 +1,63 @@
-#GitHub API 客户端，负责与 GitHub API 进行交互，获取仓库更新信息
+# src/github_client.py
+
 import requests
+import datetime
 
 class GitHubClient:
     def __init__(self, token):
         self.token = token
-#当创建GithubClient类的实例时，初始化方法会被调用。
-#参数token时用于认证的Github访问令牌。
-#self.token=token将令牌保存为实例变量，以便后续的API请求使用。
-    def fetch_updates(self, subscriptions):
-        headers = {
-            'Authorization': f'token {self.token}'
-        }
-        updates = {}
-        for repo in subscriptions:
-            response = requests.get(f'https://api.github.com/repos/{repo}/events', headers=headers)
-            if response.status_code == 200:
-                updates[repo] = response.json()
-        return updates
-#fetch_updates负责从Github获取指定仓库的更新信息。
-#参数subscriptions是一个包含仓库名称的列表，这些仓库是用户订阅的，需要检查更新。
-#headers 字典中包含了认证信息，用于 GitHub API 请求。'Authorization': f'token {self.token}' 表示将令牌作为认证的方式，以 token 作为前缀。
-#创建一个空的字典 updates，用于存储每个仓库的更新信息。
-#遍历 subscriptions 列表中的每个仓库名称，执行以下操作：
-#1.使用 requests.get 发送一个 GET 请求到 GitHub API，访问指定仓库的事件接口 https://api.github.com/repos/{repo}/events。
-#2.请求中包含构建好的 headers，以便进行认证。
-#3.如果响应的状态码为 200（即请求成功），则将返回的 JSON 数据添加到 updates 字典中，键为仓库名称，值为对应的更新数据（JSON 格式）。
+        self.headers = {'Authorization': f'token {self.token}'}
 
-#最终返回一个包含所有订阅仓库更新信息的字典 updates。字典的键是仓库名称，值是该仓库的事件数据。
+    def fetch_updates(self, repos):
+        updates = {}
+        for repo in repos:
+            updates[repo] = {
+                'commits': self.fetch_commits(repo),
+                'issues': self.fetch_issues(repo),
+                'pull_requests': self.fetch_pull_requests(repo)
+            }
+        return updates
+
+    def fetch_commits(self, repo):
+        url = f'https://api.github.com/repos/{repo}/commits'
+        response = requests.get(url, headers=self.headers)
+        response.raise_for_status()
+        return response.json()
+
+    def fetch_issues(self, repo):
+        url = f'https://api.github.com/repos/{repo}/issues'
+        response = requests.get(url, headers=self.headers)
+        response.raise_for_status()
+        return response.json()
+
+    def fetch_pull_requests(self, repo):
+        url = f'https://api.github.com/repos/{repo}/pulls'
+        response = requests.get(url, headers=self.headers)
+        response.raise_for_status()
+        return response.json()
+
+    def export_daily_progress(self, repo):
+        date_str = datetime.datetime.now().strftime('%Y-%m-%d')
+        issues = self.fetch_issues(repo)
+        pull_requests = self.fetch_pull_requests(repo)
+        filename = f"{repo.replace('/', '_')}_{date_str}.md"
+
+        with open(filename, 'w') as f:
+            f.write(f"# {repo} Daily Progress - {date_str}\n\n")
+            f.write("## Issues\n")
+            for issue in issues:
+                f.write(f"- {issue['title']} #{issue['number']}\n")
+            f.write("\n## Pull Requests\n")
+            for pr in pull_requests:
+                f.write(f"- {pr['title']} #{pr['number']}\n")
+
+        print(f"Exported daily progress to {filename}")
+
+        return filename
+
+
+
+
 
 #在 Python 中，__init__ 方法会在类的实例被创建时自动调用，不需要手动调用它。
 #它通常用于为新创建的对象分配初始值或进行设置。
